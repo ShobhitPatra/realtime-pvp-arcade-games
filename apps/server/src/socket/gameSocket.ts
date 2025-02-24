@@ -52,6 +52,15 @@ const gameSocket = (_io: Server) => {
       console.log(
         `user disconnnected with socket_id : ${socket.id} disconnected`
       );
+
+      Object.keys(rooms).forEach((room_id) => {
+        rooms[room_id].players = rooms[room_id].players.filter(
+          (player) => player.id !== socket.id
+        );
+        _io.to(room_id).emit("updated_players", rooms[room_id].players);
+      });
     });
   });
 };
+
+export default gameSocket;
