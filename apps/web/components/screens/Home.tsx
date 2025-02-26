@@ -13,12 +13,14 @@ const Home = () => {
   useEffect(() => {
     // const socket = io("http://localhost:8000");
     socket.on("updated_players", (players) => {
-      setPlayersOnline(players);
+      setPlayersOnline(
+        players.map((player: { username: string }) => player.username)
+      );
     });
   }, []);
 
-  socket.on("game_result", (result) => {
-    setGameresult(result);
+  socket.on("game_result", (result: { winner: string }) => {
+    setGameresult(result.winner);
   });
   //join_game handler
   const joinRoom = ({
@@ -27,7 +29,7 @@ const Home = () => {
   }: {
     roomId: string;
     player: {
-      id: string;
+      id?: string;
       username: string;
     };
   }) => {
@@ -61,7 +63,7 @@ const Home = () => {
         <button
           className="bg-green-800 p-3  text-2xl rounded-md hover:bg-green-700"
           onClick={() =>
-            joinRoom({ roomId, player: { id: "1", username: "a" } })
+            joinRoom({ roomId, player: { id: "1", username: username } })
           }
         >
           Start Game
@@ -104,7 +106,8 @@ const Home = () => {
         </li>
       </ul>
       {/* game result */}
-      <div>{playersOnline}</div>
+      <div className="flex justify-center p-20">PLayers :</div>
+      {!playersOnline ? <p>No players yet...</p> : <p>{playersOnline}</p>}
       <div className="flex justify-center p-20">Result : {gameresult}</div>
     </div>
   );

@@ -7,11 +7,12 @@ const rooms: Record<string, Room> = {};
 
 const gameSocket = (_io: Server) => {
   _io.on("connection", (socket: Socket) => {
-    console.log(`new user joined with sicket_id : ${socket.id}`);
+    console.log(`new user joined with socket_id : ${socket.id}`);
 
     socket.on(
       "join_room",
       ({ room_id, player }: { room_id: string; player: Player }) => {
+        console.log(`player ${player} requested to join the room`);
         if (!rooms[room_id]) {
           //creating a new room
           rooms[room_id] = {
@@ -19,13 +20,17 @@ const gameSocket = (_io: Server) => {
             players: [],
             moves: [],
           };
+          console.log(`new room created ${room_id}`);
         }
         if (rooms[room_id].players.length >= 2) {
           socket.emit("room_full", { message: "room is full" });
+          console.log({ message: "room is full" });
+
           return;
         }
         rooms[room_id].players.push(player);
         socket.join(room_id);
+        console.log(`player ${player} joined the room ${room_id}`);
 
         _io.to(room_id).emit("updated_players", rooms[room_id].players);
       }
@@ -58,6 +63,7 @@ const gameSocket = (_io: Server) => {
           (player) => player.id !== socket.id
         );
         _io.to(room_id).emit("updated_players", rooms[room_id].players);
+        console.log(`updated players : ${rooms[room_id].players}`);
       });
     });
   });
